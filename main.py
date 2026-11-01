@@ -4,6 +4,10 @@ import sys
 import time
 import re
 
+# This guard runs at import time, not inside main, so importing this
+# module on a machine without pyperclip ends the interpreter before any
+# caller code runs. For a one file tool I accept that: there is no mode
+# of this program that works without clipboard access anyway.
 try:
     import pyperclip
 except ImportError:
@@ -52,6 +56,9 @@ def detect_sensitive_data(text):
     Returns:
         list: A list of detected sensitive data types. Empty if none are found.
     """
+    # Only the labels come out of here, never the matched text. The
+    # alert tells the user what kind of thing was seen without writing
+    # the secret itself into a log file, which would defeat the point.
     # The card pattern is a shape check only: 13 to 16 digits with optional
     # separators. It does not run a Luhn check, so plenty of innocent long
     # numbers trip it. That bias toward false alarms is intentional here;
@@ -78,8 +85,18 @@ def main():
             except pyperclip.PyperclipException as e:
                 logging.error(f"Error accessing clipboard: {e}")
                 logging.error("Ensure you have the required dependencies installed (e.g., xclip/xsel on Linux).")
+                # Breaking here ends the whole program, and it ends with
+                # exit code 0 because nothing re-raises. On a headless
+                # box with no clipboard mechanism this tool therefore
+                # looks like it ran fine. The two error lines above are
+                # the only sign it monitored nothing.
                 break # Exit loop if clipboard access fails
 
+            # Comparison is only against the immediately previous
+            # content, so copying the same secret again after copying
+            # anything else alerts again, while re-copying it twice in
+            # a row alerts once. Starting previous as an empty string
+            # also means an empty clipboard at launch is never a change.
             if clipboard_content != previous_clipboard_content:
                 logging.debug("Clipboard content changed.")
                 previous_clipboard_content = clipboard_content
