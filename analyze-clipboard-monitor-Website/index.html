@@ -3,105 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>analyze-clipboard-monitor: The Reindeer Herder's Autumn Roundup</title>
-<meta name="description" content="analyze-clipboard-monitor monitors the system clipboard for sensitive data shapes: credit card numbers, API keys, and email addresses. Shape only detection, no Luhn check.">
+<title>analyze-clipboard-monitor: The Clipboard Wall</title>
+<meta name="description" content="Polls the clipboard once per second for credit card, API key, and email shapes and alerts on a match. Shape-only detection, no Luhn check.">
 <style>
-@font-face{font-family:'Atkinson Hyperlegible';src:url('fonts/AtkinsonHyperlegible.ttf') format('truetype');}
-@font-face{font-family:'Cabin';src:url('fonts/Cabin.ttf') format('truetype');}
-:root{--bone:#eee4c8;--fur:#7a5636;--ind:#343a6e;--cyan:#6edce1;--ink:#2e2a24}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bone);color:var(--ink);font-family:'Cabin',sans-serif;line-height:1.65}
-h1,h2,h3{font-family:'Atkinson Hyperlegible',sans-serif;color:var(--ind)}
-.hero{min-height:100vh;padding:1.4rem 6vw 2.4rem;max-width:1180px;margin:0 auto}
-.hero img{width:100%;height:auto;display:block;margin-top:1rem}
-.logo{width:170px !important}
-nav{display:flex;flex-wrap:wrap;gap:.7rem;margin:1rem 0}
-.icebtn{display:inline-block;background:linear-gradient(160deg,#fdfcf6,#dfe4e2);color:var(--ind);font-family:'Atkinson Hyperlegible',sans-serif;text-decoration:none;padding:.8rem 1.25rem;border:2px solid #b9c2bd;border-bottom:5px double var(--ind);clip-path:polygon(2% 6%,97% 0,100% 88%,94% 100%,4% 97%,0 14%);opacity:.88;transition:opacity .2s,filter .2s}
-.icebtn:hover{opacity:1;filter:brightness(1.07)}
-.icebtn:active{filter:brightness(.9)}
-.icebtn:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
-main{padding:0 6vw 3rem;max-width:1180px;margin:0 auto}
-.pen{background:var(--ind);color:var(--bone);padding:2.6rem 1.6rem 1.3rem;margin:1.8rem 0;position:relative;border:2px solid var(--bone)}
-.pen::before{content:'';position:absolute;top:12px;left:0;right:0;height:9px;background:var(--fur);box-shadow:0 0 0 2px #5f4126}
-.pen::after{content:'';position:absolute;top:4px;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--fur) 0 6%,transparent 6% 12%,var(--fur) 12% 18%,transparent 18% 24%,var(--fur) 24% 30%,transparent 30% 36%,var(--fur) 36% 42%,transparent 42% 48%,var(--fur) 48% 54%,transparent 54% 60%,var(--fur) 60% 66%,transparent 66% 72%,var(--fur) 72% 78%,transparent 78% 84%,var(--fur) 84% 90%,transparent 90% 96%,var(--fur) 96%)}
-.pen h2,.pen h3{color:var(--bone)}
-.pen code,.pen pre{color:#fff}
-pre{background:rgba(255,255,255,.13);padding:1rem;overflow-x:auto}
-a{color:var(--ind)}
-a::before{content:'\2615';color:var(--fur);margin-right:.4rem;display:inline-block;transition:transform .15s}
-a:hover::before{transform:rotate(-14deg);color:var(--cyan)}
-.icebtn::before{content:none}
-.pen a{color:var(--cyan)}
-.slate{background:var(--ind);color:var(--bone);border:2px solid var(--bone);outline:1.5px solid var(--cyan);outline-offset:-9px;padding:1rem 1.2rem;margin:1rem 0;position:relative}
-.slate::before,.slate::after{content:'';position:absolute;top:-9px;width:14px;height:12px;background:var(--fur)}
-.slate::before{left:12px}.slate::after{right:12px}
-.slate .notches{color:var(--cyan);letter-spacing:.35em}
-.fence{height:12px;margin:2.2rem 0;border-top:7px solid var(--fur);position:relative}
-.fence::before,.fence::after{content:'';position:absolute;top:-14px;width:9px;height:24px;background:var(--fur)}
-.fence::before{left:22%}.fence::after{right:22%}
-.fence.minor{width:40%;margin:1.6rem auto}
-.fence.minor::before,.fence.minor::after{content:none}
-footer{padding:1rem 6vw 2.6rem;max-width:1180px;margin:0 auto}
+@font-face{font-family:'Permanent Marker';src:url('fonts/PermanentMarker-400.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Archivo Narrow';src:url('fonts/ArchivoNarrow-400.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Archivo Narrow';src:url('fonts/ArchivoNarrow-500.woff2') format('woff2');font-weight:500}
+@font-face{font-family:'Archivo Narrow';src:url('fonts/ArchivoNarrow-600.woff2') format('woff2');font-weight:600}
+@font-face{font-family:'Archivo Narrow';src:url('fonts/ArchivoNarrow-700.woff2') format('woff2');font-weight:700}
+:root{--ground:#efe9dd;--ink:#2a251c;--paper:#fbf8f1;--line:#ddd2ba;--frame:#f7f2e6;--accent:#d42a1e;--accentdk:#a31f14;--accentlt:#ffc4b8;--herotitle:#fdfaf2;--herotext:#f0e9da;--cardtitle:#4c3a20;--stripbg:#33302a;--striptext:#f5f1e6;--footink:#8a7c62;--headfont:'Permanent Marker';--bodyfont:'Archivo Narrow'}
+*{box-sizing:border-box} body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--bodyfont),sans-serif;line-height:1.65}
+h1,h2{font-family:var(--headfont),sans-serif}
+.hero{background:linear-gradient(170deg,#c2a06e 0%,#b08954 55%,#8a6a3e 100%);padding:2.2rem 6vw 1.8rem;border-bottom:8px solid var(--accent)}
+.hero .inner{max-width:1020px;margin:0 auto}
+.hero img.wide{width:100%;height:auto;display:block;border:5px solid var(--frame);border-radius:4px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.hero .row{display:flex;gap:1.1rem;align-items:flex-start;margin-top:1.2rem}
+.hero .row img{width:92px;height:92px;object-fit:cover;border-radius:6px;border:3px solid var(--frame);background:var(--frame)}
+.hero h1{margin:.1rem 0 .3rem;font-size:2.4rem;color:var(--herotitle)}
+.hero p{max-width:44rem;color:var(--herotext)}
+.hero a{color:var(--accentlt)}
+main{padding:0 6vw 3rem;max-width:1020px;margin:0 auto}
+.card{background:var(--paper);border:1px solid var(--line);border-top:8px solid #6d7276;padding:1.2rem 1.5rem;margin:1.6rem 0;box-shadow:0 2px 8px rgba(30,30,30,.14)}
+.card.accent{border-top-color:var(--accent)}
+.card h2{margin:.1rem 0 .5rem;font-size:1.6rem;color:var(--cardtitle)}
+.card p{margin:.4rem 0}
+.strip{background:var(--stripbg);color:var(--striptext);padding:1rem 1.2rem;overflow-x:auto;font-family:ui-monospace,Menlo,monospace;font-size:.92rem;border-radius:4px;border-left:6px solid var(--accent)}
+.btn{display:inline-block;background:var(--accent);color:#fff;font-family:var(--bodyfont),sans-serif;font-weight:700;text-decoration:none;padding:.55rem 1.1rem;border-radius:3px;margin:.3rem .4rem .3rem 0}
+.btn:hover{background:var(--frame);color:var(--accentdk)}.btn:active{transform:translateY(2px)}
+.btn:focus-visible{outline:2px dashed var(--accent);outline-offset:3px}
+a{color:var(--accentdk);font-weight:700}
+table{border-collapse:collapse}td{padding:.2rem .9rem .2rem 0;vertical-align:top}
+td:first-child{font-weight:700;color:var(--cardtitle);white-space:nowrap}
+ul{margin:.4rem 0;padding-left:1.2rem}li{margin:.25rem 0}
+.small{font-size:.92rem}
+footer{padding:0 6vw 2.5rem;max-width:1020px;margin:0 auto;color:var(--footink)}
 </style>
 </head>
 <body>
 <header class="hero">
-<img class="logo" src="assets/logo.png" alt="Ear mark chart board with rows of notched ears, one notch filled in ice cyan">
-<h1>analyze-clipboard-monitor</h1>
-<p>The roundup tally kept at the gate: a watch kept once per second, a shape checked against the chart, and an alert raised the moment one crosses.</p>
-<nav aria-label="Tally pens">
-<a class="icebtn" href="#watch">Begin the Watch</a>
-<a class="icebtn" href="#honesty">A Shape Is Not a Verdict</a>
-<a class="icebtn" href="#camp">Setting Up Camp</a>
-<a class="icebtn" href="#gate">Working the Gate</a>
-</nav>
-<img src="assets/intro-banner.png" alt="Autumn roundup corral in tundra mist, herd circling, chart board with notch shapes only and no words">
-<img src="assets/banner.png" alt="Roundup corral with analyze-clipboard-monitor painted on the gate board over the working chute">
+<div class="inner">
+<img class="wide" src="assets/intro-banner.png" alt="Two hands at a wall of kraft clipboards, one steadying the centre board while the other pins a small red flag through the top corner of its fresh white sheet, ranked boards on every side">
+<div class="row"><img src="assets/logo.png" alt="analyze-clipboard-monitor logo: one kraft clipboard straight on against a pale wall, its steel clip holding a single clean white sheet with one small red flag pin stuck through its top right corner"><div><h1>analyze-clipboard-monitor</h1><p>Monitors the system clipboard for sensitive data shapes and alerts the user when one appears: it logs a warning and prints an <code>Alert!</code> line.</p><p><a class="btn" href="https://github.com/ShadowGuard-AI/analyze-clipboard-monitor">Open the repo</a> <a class="btn" href="#usage">Usage</a></p></div></div>
+</div>
 </header>
 <main>
-<div class="fence"></div>
-<section class="pen" id="watch">
-<h2>Pen One: What the Watch Is For</h2>
-<p>analyze-clipboard-monitor monitors the system clipboard for sensitive data shapes, and the pen names the three shapes exactly as the README names them:</p>
-<ul>
-<li>credit card numbers</li>
-<li>API keys</li>
-<li>email addresses</li>
-</ul>
-<p>When one appears, it logs a warning and prints an <code>Alert!</code> line.</p>
-<h3>Alert! Shape at the Gate</h3>
-<p>The rhythm, without dressing it up: it polls the clipboard once per second and runs until Ctrl+C.</p>
-<p><strong>Ctrl+C Ends the Watch.</strong></p>
-</section>
-<div class="fence minor"></div>
-<section class="pen" id="honesty">
-<h2>Pen Two: The Honesty Pen</h2>
-<h3>A Shape Is Not a Verdict</h3>
-<p>Detection is shape only. The card pattern checks 13 to 16 digits with optional separators and does not run a Luhn check, so innocent long numbers can trip it.</p>
-<p>An alert is a prompt to look, not a verdict. A false alarm explained in advance is worth more than a warning that cries certainty.</p>
-</section>
-<div class="fence"></div>
-<section class="pen" id="camp">
-<h2>Pen Three: Setting Up Camp</h2>
-<pre>git clone https://github.com/ShadowGuard-AI/analyze-clipboard-monitor
-cd analyze-clipboard-monitor
-pip install -r requirements.txt</pre>
-<p>The only dependency is <code>pyperclip</code>, as <code>requirements.txt</code> records. On Linux a clipboard backend such as xclip or xsel is also needed for pyperclip to reach the clipboard.</p>
-<p><a href="#gate">Begin the Watch</a> at the working gate.</p>
-</section>
-<div class="fence minor"></div>
-<section class="pen" id="gate">
-<h2>Pen Four: Working the Gate</h2>
-<pre>python3 main.py [--log-level LEVEL]</pre>
-<p>The options, entered as a tally:</p>
-<ul>
-<li><strong>Register Level:</strong> <code>--log-level</code> takes one of DEBUG, INFO, WARNING, ERROR, CRITICAL, with INFO as the default</li>
-<li><code>-h</code> or <code>--help</code> shows help and exits</li>
-</ul>
-<div class="slate"><h3>The Chart Is Missing: Install pyperclip</h3><p>If pyperclip is not installed, the tool prints an install message and exits 1 before monitoring starts.</p><p class="notches">&#8745; &#8745; &#8745;</p></div>
-<p>License shuts the tally: Copyright (c) ShadowGuard-AI.</p>
-</section>
+<section class="card accent"><h2>What it watches for</h2><ul>
+<li>Credit card number shapes</li>
+<li>API key shapes</li>
+<li>Email addresses</li>
+</ul><p>It polls the clipboard once per second and runs until Ctrl+C.</p></section>
+<section class="card"><h2>The limit, stated in full</h2><p>Detection is shape only: the card pattern checks 13 to 16 digits with optional separators and does not run a Luhn check, so innocent long numbers can trip it. An alert is a prompt to look, not a verdict.</p></section>
+<section class="card" id="usage"><h2>Install and usage</h2><div class="strip">git clone https://github.com/ShadowGuard-AI/analyze-clipboard-monitor<br>cd analyze-clipboard-monitor<br>pip install -r requirements.txt<br><br>python3 main.py [--log-level LEVEL]</div><p class="small">The only dependency is <code>pyperclip</code> (see <code>requirements.txt</code>). On Linux a clipboard backend such as xclip or xsel is also needed for pyperclip to reach the clipboard. <code>--log-level</code> takes one of DEBUG, INFO, WARNING, ERROR, CRITICAL (default: INFO). If pyperclip is not installed, the tool prints an install message and exits 1 before monitoring starts.</p></section>
+<section class="card accent"><h2>The files</h2><p class="small"><code>main.py</code>, the monitor itself. <code>requirements.txt</code>, its one dependency. <code>LICENSE</code>, the MIT License. Full notes are in the <a href="https://github.com/ShadowGuard-AI/analyze-clipboard-monitor">repo README</a>.</p></section>
 </main>
-<footer><p>analyze-clipboard-monitor: every entry a sorted animal accounted for, none waved through unchecked.</p></footer>
+<footer><p>Every copied scrap, pinned to the board the moment it lands.</p></footer>
 </body>
 </html>
