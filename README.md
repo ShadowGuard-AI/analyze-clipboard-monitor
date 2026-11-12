@@ -17,7 +17,7 @@ Monitors the system clipboard for sensitive data shapes (credit card numbers, AP
 
 ## Install
 
-```
+```sh
 git clone https://github.com/ShadowGuard-AI/analyze-clipboard-monitor
 cd analyze-clipboard-monitor
 pip install -r requirements.txt
@@ -31,7 +31,7 @@ The only dependency is `pyperclip` (see `requirements.txt`). On Linux a clipboar
 
 ## Usage
 
-```
+```sh
 python3 main.py [--log-level LEVEL]
 ```
 
